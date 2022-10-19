@@ -2,26 +2,45 @@ use std::io;
 
 use rand::Rng;
 
-fn main() {
-    let mut guessed = String::new();
+fn gen_rand_num() -> i32 {
+    rand::thread_rng().gen_range(1..=3)
+}
 
-    let secret_number = rand::thread_rng().gen_range(1..=100);
+fn read_num() -> String {
+    let mut guessed = String::new();
 
     io::stdin()
         .read_line(&mut guessed)
         .expect("Something went wrong");
 
-    match guessed.trim().parse::<i32>() {
-        Ok(num) => {
-            println!("You entered a vaild number {num}");
-            if num == secret_number {
-                println!("You guessed correctly");
-                return;
-            }
-            println!("You didn't guess the number, it was {secret_number}")
+    guessed
+}
+
+enum GuessResult {
+    Correct,
+    Incorrect,
+    Invalid,
+}
+
+fn check_numbers(guess: String, rand: i32) -> GuessResult {
+    if let Ok(num) = guess.trim().parse::<i32>() {
+        if num == rand {
+            return GuessResult::Correct;
         }
-        Err(_) => {
-            println!("You didn't enter a valid number")
-        }
+        return GuessResult::Incorrect;
     }
+    GuessResult::Invalid
+}
+
+fn main() {
+    let rand = gen_rand_num();
+    println!("Input your guess:");
+    let guess = read_num();
+
+    let message: String = match check_numbers(guess, rand) {
+        GuessResult::Correct => "Bravo".to_string(),
+        _ => format!("Unbravo, the answer was {rand}"),
+    };
+
+    println!("{message}")
 }
