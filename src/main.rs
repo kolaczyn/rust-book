@@ -1,6 +1,11 @@
 use rand::Rng;
 use std::cmp::Ordering;
-use std::io;
+use std::io::{self, Write};
+
+// FIXME there's too much functions with side effect (println)
+// TODO organize into files
+// TODO add points
+// TODO add points
 
 enum NumberOrdering {
     TooSmall,
@@ -19,10 +24,8 @@ enum TurnResult {
     NotGuessed,
 }
 
-// FIXME there's too much functions with side effect (println)
-
-fn gen_rand_num() -> i32 {
-    rand::thread_rng().gen_range(1..=3)
+fn gen_rand_num(max: i32) -> i32 {
+    rand::thread_rng().gen_range(1..=max)
 }
 
 fn read_num() -> String {
@@ -56,8 +59,14 @@ fn get_message(guess_result: &GuessResult) -> String {
     }
 }
 
+fn print_without_newline(s: String) {
+    print!("{s}");
+    io::stdout().flush().unwrap();
+}
+
 fn one_turn(rand: i32) -> TurnResult {
-    println!("Input your guess:");
+    print_without_newline("Input your guess: ".to_owned());
+
     let guess = read_num();
 
     let result = check_numbers(guess, rand);
@@ -71,8 +80,17 @@ fn one_turn(rand: i32) -> TurnResult {
     }
 }
 
+fn game_loop(rand: i32) {
+    loop {
+        let turn_result = one_turn(rand);
+        match turn_result {
+            TurnResult::Guessed => break,
+            TurnResult::NotGuessed => {}
+        }
+    }
+}
+
 fn main() {
-    let rand = gen_rand_num();
-    println!("{rand}");
-    one_turn(rand);
+    let rand = gen_rand_num(100);
+    game_loop(rand)
 }
