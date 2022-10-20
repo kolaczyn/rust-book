@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::enums::{GameDifficulty, GuessResult, NumberOrdering, TurnResult};
+use crate::enums::{GuessResult, NumberOrdering, TurnResult};
 use crate::game_state::GameState;
 use crate::utils::{gen_rand_num, read_number_from_user};
 
@@ -32,40 +32,22 @@ fn test_check_numbers() {
     ));
 }
 
-fn get_message(guess_result: &GuessResult) -> String {
-    match guess_result {
-        GuessResult::Correct => "You did it!".to_string(),
-        GuessResult::Incorrect(NumberOrdering::TooBig) => "The correct is too big".to_string(),
-        GuessResult::Incorrect(NumberOrdering::TooSmall) => "The correct is too small".to_string(),
-        GuessResult::Invalid => "Invalid guess".to_string(),
-    }
-}
-
 fn one_turn(user_input: String, rand: i32, game_state: GameState) -> GameState {
     let result = check_numbers(user_input, rand);
-    let message = get_message(result);
+    let message = GuessResult::get_message(result);
 
     println!("{message}");
 
-    let (turn_result, points) = match result {
-        // TODO add this logic to GameState traits
-        GuessResult::Correct => (TurnResult::Guessed, game_state.points),
-        _ => (TurnResult::NotGuessed, game_state.points - 1),
+    let turn_result = match result {
+        GuessResult::Correct => TurnResult::Guessed,
+        _ => TurnResult::NotGuessed,
     };
-    GameState {
-        points,
-        last_turn_result: turn_result,
-        difficulty: GameDifficulty::Easy,
-    }
+    game_state.new_turn(turn_result)
 }
 
 #[test]
 fn test_one_turn() {
-    let game_state = GameState {
-        points: 10,
-        last_turn_result: TurnResult::NotGuessed,
-        difficulty: GameDifficulty::Easy,
-    };
+    let game_state = GameState::new();
     let new_game_state = one_turn("21".to_string(), 30, game_state);
     assert_eq!(new_game_state.points, 9);
     assert_eq!(new_game_state.last_turn_result, TurnResult::NotGuessed);
@@ -73,12 +55,8 @@ fn test_one_turn() {
 
 pub fn game_loop() {
     let rand = gen_rand_num(100);
-    let initial_game_state = GameState {
-        difficulty: GameDifficulty::Easy,
-        // technically true, but doesn't make much sense
-        last_turn_result: TurnResult::NotGuessed,
-        points: 10,
-    };
+    let initial_game_state = GameState::new();
+
     // Workaround, because I'm using a loop to keep doing stuff
     let mut curr_game_state = initial_game_state;
     loop {

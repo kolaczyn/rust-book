@@ -1,4 +1,5 @@
 use crate::enums::{GameDifficulty, TurnResult};
+use std::cmp;
 
 #[derive(Clone)]
 pub struct GameState {
@@ -23,7 +24,7 @@ impl GameState {
                 difficulty: self.difficulty.clone(),
             },
             TurnResult::NotGuessed => GameState {
-                points: self.points - 1,
+                points: cmp::max(self.points - 1, 0),
                 last_turn_result: TurnResult::NotGuessed,
                 difficulty: self.difficulty.clone(),
             },
