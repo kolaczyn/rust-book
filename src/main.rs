@@ -2,6 +2,8 @@ use rand::Rng;
 use std::cmp::Ordering;
 use std::io;
 
+// FIXME there's too much functions with side effect (println)
+
 fn gen_rand_num() -> i32 {
     rand::thread_rng().gen_range(1..=3)
 }
@@ -24,31 +26,37 @@ enum NumberOrdering {
 enum GuessResult {
     Correct,
     Incorrect(NumberOrdering),
-    InvalidWhy(String),
+    Invalid,
 }
 
-fn get_message(guess_result: GuessResult) -> String {
+fn get_message(guess_result: &GuessResult) -> String {
     match guess_result {
         GuessResult::Correct => "You did it!".to_string(),
         GuessResult::Incorrect(NumberOrdering::TooBig) => "The correct is too big".to_string(),
         GuessResult::Incorrect(NumberOrdering::TooSmall) => "The correct is too small".to_string(),
-        GuessResult::InvalidWhy(reason) => reason,
+        GuessResult::Invalid => "Invalid guess".to_string(),
     }
 }
 
-fn check_numbers(guess: String, rand: i32) -> GuessResult {
+fn check_numbers(guess: String, rand: i32) -> &'static GuessResult {
     if let Ok(num) = guess.trim().parse::<i32>() {
         match num.cmp(&rand) {
-            Ordering::Less => GuessResult::Incorrect(NumberOrdering::TooSmall),
-            Ordering::Equal => GuessResult::Correct,
-            Ordering::Greater => GuessResult::Incorrect(NumberOrdering::TooBig),
+            Ordering::Less => &GuessResult::Incorrect(NumberOrdering::TooSmall),
+            Ordering::Equal => &GuessResult::Correct,
+            Ordering::Greater => &GuessResult::Incorrect(NumberOrdering::TooBig),
         }
     } else {
-        GuessResult::InvalidWhy("Not a valid number".to_string())
+        &GuessResult::Invalid
     }
 }
 
-fn one_turn(rand: i32) {
+#[derive(Clone, Copy)]
+enum TurnResult {
+    Guessed,
+    NotGuessed,
+}
+
+fn one_turn(rand: i32) -> TurnResult {
     println!("Input your guess:");
     let guess = read_num();
 
@@ -56,6 +64,11 @@ fn one_turn(rand: i32) {
     let message = get_message(result);
 
     println!("{message}");
+
+    match result {
+        GuessResult::Correct => TurnResult::Guessed,
+        _ => TurnResult::NotGuessed,
+    }
 }
 
 fn main() {
