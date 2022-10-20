@@ -1,6 +1,6 @@
-use std::io;
-
 use rand::Rng;
+use std::cmp::Ordering;
+use std::io;
 
 fn gen_rand_num() -> i32 {
     rand::thread_rng().gen_range(1..=3)
@@ -16,30 +16,36 @@ fn read_num() -> String {
     guessed
 }
 
+enum NumberOrdering {
+    TooSmall,
+    TooBig,
+}
+
 enum GuessResult {
     Correct,
-    // i32 is the correct ans
-    Incorrect(i32),
-    // String is the reason
-    Invalid(String),
+    Incorrect(NumberOrdering),
+    InvalidWhy(String),
 }
 
 fn get_message(guess_result: GuessResult) -> String {
     match guess_result {
         GuessResult::Correct => "You did it!".to_string(),
-        GuessResult::Incorrect(correct) => format!("The correct answer was {correct}"),
-        GuessResult::Invalid(reason) => reason,
+        GuessResult::Incorrect(NumberOrdering::TooBig) => "The correct is too big".to_string(),
+        GuessResult::Incorrect(NumberOrdering::TooSmall) => "The correct is too small".to_string(),
+        GuessResult::InvalidWhy(reason) => reason,
     }
 }
 
 fn check_numbers(guess: String, rand: i32) -> GuessResult {
     if let Ok(num) = guess.trim().parse::<i32>() {
-        if num == rand {
-            return GuessResult::Correct;
+        match num.cmp(&rand) {
+            Ordering::Less => GuessResult::Incorrect(NumberOrdering::TooSmall),
+            Ordering::Equal => GuessResult::Correct,
+            Ordering::Greater => GuessResult::Incorrect(NumberOrdering::TooBig),
         }
-        return GuessResult::Incorrect(rand);
+    } else {
+        GuessResult::InvalidWhy("Not a valid number".to_string())
     }
-    GuessResult::Invalid("Not a valid number".to_string())
 }
 
 fn one_turn(rand: i32) {
@@ -54,5 +60,6 @@ fn one_turn(rand: i32) {
 
 fn main() {
     let rand = gen_rand_num();
+    println!("{rand}");
     one_turn(rand);
 }
