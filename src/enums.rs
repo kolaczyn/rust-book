@@ -23,11 +23,3 @@ pub enum GameDifficulty {
     Normal,
     Hard,
 }
-
-// Not really an enum, but whatever, I'll fix it later
-#[derive(Clone)]
-pub struct GameState {
-    pub points: i32,
-    pub last_turn_result: TurnResult,
-    pub difficulty: GameDifficulty,
-}

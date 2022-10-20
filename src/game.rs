@@ -1,9 +1,8 @@
 use std::cmp::Ordering;
 
-use crate::{
-    enums::{GameDifficulty, GameState, GuessResult, NumberOrdering, TurnResult},
-    utils::{gen_rand_num, read_number_from_user},
-};
+use crate::enums::{GameDifficulty, GuessResult, NumberOrdering, TurnResult};
+use crate::game_state::GameState;
+use crate::utils::{gen_rand_num, read_number_from_user};
 
 fn check_numbers(guess: String, rand: i32) -> &'static GuessResult {
     if let Ok(num) = guess.trim().parse::<i32>() {
@@ -16,6 +15,7 @@ fn check_numbers(guess: String, rand: i32) -> &'static GuessResult {
         &GuessResult::Invalid
     }
 }
+
 #[test]
 fn test_check_numbers() {
     assert!(matches!(
@@ -80,7 +80,7 @@ pub fn game_loop() {
         points: 10,
     };
     // Workaround, because I'm using a loop to keep doing stuff
-    let mut curr_game_state = initial_game_state.clone();
+    let mut curr_game_state = initial_game_state;
     loop {
         let user_input = read_number_from_user();
         curr_game_state = one_turn(user_input, rand, curr_game_state);
