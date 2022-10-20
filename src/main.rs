@@ -18,8 +18,18 @@ fn read_num() -> String {
 
 enum GuessResult {
     Correct,
-    Incorrect,
-    Invalid,
+    // i32 is the correct ans
+    Incorrect(i32),
+    // String is the reason
+    Invalid(String),
+}
+
+fn get_message(guess_result: GuessResult) -> String {
+    match guess_result {
+        GuessResult::Correct => "You did it!".to_string(),
+        GuessResult::Incorrect(correct) => format!("The correct answer was {correct}"),
+        GuessResult::Invalid(reason) => reason,
+    }
 }
 
 fn check_numbers(guess: String, rand: i32) -> GuessResult {
@@ -27,20 +37,22 @@ fn check_numbers(guess: String, rand: i32) -> GuessResult {
         if num == rand {
             return GuessResult::Correct;
         }
-        return GuessResult::Incorrect;
+        return GuessResult::Incorrect(rand);
     }
-    GuessResult::Invalid
+    GuessResult::Invalid("Not a valid number".to_string())
+}
+
+fn one_turn(rand: i32) {
+    println!("Input your guess:");
+    let guess = read_num();
+
+    let result = check_numbers(guess, rand);
+    let message = get_message(result);
+
+    println!("{message}");
 }
 
 fn main() {
     let rand = gen_rand_num();
-    println!("Input your guess:");
-    let guess = read_num();
-
-    let message: String = match check_numbers(guess, rand) {
-        GuessResult::Correct => "Bravo".to_string(),
-        _ => format!("Unbravo, the answer was {rand}"),
-    };
-
-    println!("{message}")
+    one_turn(rand);
 }
