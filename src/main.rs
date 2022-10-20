@@ -2,6 +2,23 @@ use rand::Rng;
 use std::cmp::Ordering;
 use std::io;
 
+enum NumberOrdering {
+    TooSmall,
+    TooBig,
+}
+
+enum GuessResult {
+    Correct,
+    Incorrect(NumberOrdering),
+    Invalid,
+}
+
+#[derive(Clone, Copy)]
+enum TurnResult {
+    Guessed,
+    NotGuessed,
+}
+
 // FIXME there's too much functions with side effect (println)
 
 fn gen_rand_num() -> i32 {
@@ -18,26 +35,6 @@ fn read_num() -> String {
     guessed
 }
 
-enum NumberOrdering {
-    TooSmall,
-    TooBig,
-}
-
-enum GuessResult {
-    Correct,
-    Incorrect(NumberOrdering),
-    Invalid,
-}
-
-fn get_message(guess_result: &GuessResult) -> String {
-    match guess_result {
-        GuessResult::Correct => "You did it!".to_string(),
-        GuessResult::Incorrect(NumberOrdering::TooBig) => "The correct is too big".to_string(),
-        GuessResult::Incorrect(NumberOrdering::TooSmall) => "The correct is too small".to_string(),
-        GuessResult::Invalid => "Invalid guess".to_string(),
-    }
-}
-
 fn check_numbers(guess: String, rand: i32) -> &'static GuessResult {
     if let Ok(num) = guess.trim().parse::<i32>() {
         match num.cmp(&rand) {
@@ -50,10 +47,13 @@ fn check_numbers(guess: String, rand: i32) -> &'static GuessResult {
     }
 }
 
-#[derive(Clone, Copy)]
-enum TurnResult {
-    Guessed,
-    NotGuessed,
+fn get_message(guess_result: &GuessResult) -> String {
+    match guess_result {
+        GuessResult::Correct => "You did it!".to_string(),
+        GuessResult::Incorrect(NumberOrdering::TooBig) => "The correct is too big".to_string(),
+        GuessResult::Incorrect(NumberOrdering::TooSmall) => "The correct is too small".to_string(),
+        GuessResult::Invalid => "Invalid guess".to_string(),
+    }
 }
 
 fn one_turn(rand: i32) -> TurnResult {
