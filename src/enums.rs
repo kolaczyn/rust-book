@@ -12,14 +12,12 @@ pub enum GuessResult {
 }
 
 impl GuessResult {
-    pub fn get_message(guess_result: &GuessResult) -> String {
+    pub fn get_message(guess_result: &GuessResult) -> &str {
         match guess_result {
-            GuessResult::Correct => "You did it!".to_string(),
-            GuessResult::Incorrect(NumberOrdering::TooBig) => "The correct is too big".to_string(),
-            GuessResult::Incorrect(NumberOrdering::TooSmall) => {
-                "The correct is too small".to_string()
-            }
-            GuessResult::Invalid => "Invalid guess".to_string(),
+            GuessResult::Correct => "You did it!",
+            GuessResult::Incorrect(NumberOrdering::TooBig) => "The correct is too big",
+            GuessResult::Incorrect(NumberOrdering::TooSmall) => "The correct is too small",
+            GuessResult::Invalid => "Invalid guess",
         }
     }
 }
