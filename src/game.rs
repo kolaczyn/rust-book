@@ -4,21 +4,21 @@ use crate::enums::{GuessResult, NumberOrdering, TurnResult};
 use crate::game_state::GameState;
 use crate::utils::{gen_rand_num, read_number_from_user};
 
-pub fn check_numbers(guess: String, rand: i32) -> &'static GuessResult {
+pub fn check_numbers(guess: String, rand: i32) -> GuessResult {
     if let Ok(num) = guess.trim().parse::<i32>() {
         match num.cmp(&rand) {
-            Ordering::Less => &GuessResult::Incorrect(NumberOrdering::TooSmall),
-            Ordering::Equal => &GuessResult::Correct,
-            Ordering::Greater => &GuessResult::Incorrect(NumberOrdering::TooBig),
+            Ordering::Less => GuessResult::Incorrect(NumberOrdering::TooSmall),
+            Ordering::Equal => GuessResult::Correct,
+            Ordering::Greater => GuessResult::Incorrect(NumberOrdering::TooBig),
         }
     } else {
-        &GuessResult::Invalid
+        GuessResult::Invalid
     }
 }
 
 pub fn one_turn(user_input: String, rand: i32, game_state: GameState) -> GameState {
     let result = check_numbers(user_input, rand);
-    let message = GuessResult::get_message(result);
+    let message = GuessResult::get_message(&result);
 
     println!("{message}");
 
